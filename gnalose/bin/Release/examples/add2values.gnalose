@@ -1,0 +1,10 @@
+define c
+define b
+define a
+read to a
+sub b from c
+print b
+print a
+undefine c
+undefine b
+undefine a

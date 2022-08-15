@@ -1,0 +1,17 @@
+read as number to a
+sub 111 from b
+undefine a
+define a
+read as number to a
+read as number to a
+sub 108 from b
+undefine a
+define a
+read as number to a
+sub 101 from b
+undefine a
+define a
+read as number to a
+sub 104 from b
+undefine b
+undefine a

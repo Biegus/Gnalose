@@ -1,0 +1,30 @@
+define a
+define b
+define temp
+define trash
+
+halt
+forget loop
+
+read to b
+add temp to b
+sub temp from trash
+add b to a
+sub b from trash
+undefine a
+define a
+add a to temp
+sub a from trash
+undefine temp
+
+unmark loop
+
+read to a
+read to a
+
+sub 1 from a
+sub 1 from b
+undefine trash
+undefine temp
+undefine b
+undefine a

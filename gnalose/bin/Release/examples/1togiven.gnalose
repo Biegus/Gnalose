@@ -1,0 +1,18 @@
+mark loop
+define trash
+define b
+define a
+define c
+if a greater or equal than c
+halt
+forget loop
+read to a
+add 1 to a
+sub 1 from trash
+fi
+unmark loop
+print c
+undefine trash
+undefine c
+undefine b
+undefine a

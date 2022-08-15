@@ -1,0 +1,6 @@
+﻿define a
+define b
+read to a
+sub 2137 from b
+undefine b
+undefine a
