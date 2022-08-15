@@ -22,7 +22,16 @@ namespace Gnalose
       
             Interpreter interpreter = new Interpreter(Tokenizer.Tokenize(code));
 
-            interpreter.RunAll(Console.WriteLine, () => int.Parse(Console.ReadLine()));
+            try
+            {
+                interpreter.RunAll(Console.WriteLine, () => int.Parse(Console.ReadLine()));
+            }
+            catch (Exception exc)
+            {
+
+                Console.WriteLine($"Error: {exc.Message}");
+            }
+           
         }
 
 
