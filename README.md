@@ -2,7 +2,7 @@
 # Gnalose
 ## How
 
-Gnalose is esoteric programming language that gets executed starting from the bottom.
+Gnalose is an esoteric programming language that gets executed starting from the bottom.
 The language design makes the code look like it would execute from the top normally when you look the first time.  
 It's interpreted language and the intepreter is written in c#.  
 Most of the command do the exact opposite of what they look like. There's only one variable type, integer. It can output number or char based on ASCII code.
