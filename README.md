@@ -44,10 +44,10 @@ comments: ``comment/INSTRUCTIONS`` for instance ``hey ssup/undefine a``
 ``if`` is written in reverse so you first write ``fi`` and end with conditional ( tho the if will behave as it was the other way around,  it will check conditional at ``fi``)
 ```
 
-if a=10 which is the case/if a is not equal to 10
+if a is not equal to 10
 this will always happen/sub 999 from b
 fi
-sets a=10/sub 10 from b  
+sub 10 from b  
 undefine b  
 undefine a
 ```
@@ -55,9 +55,8 @@ undefine a
 ## Goto 
 You can only jump to already defined marks. You must visit mark first for him to be defined. Also instead of giving an argument to ``halt`` you write ``forget`` with the place name
 ```
-goto/halt
-set goto arguments to place/forget place
-some code here/
+halt
+forget place
 unmark place
 ```
 you do not need to unmark place with ``mark`` because this program is never gonna finish execution anyway
