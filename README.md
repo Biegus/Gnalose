@@ -53,11 +53,11 @@ undefine a
 ## Goto 
 You can only jump to already defined marks. You must visit mark first for him to be defined. Also instead of giving an argument to ``halt`` you write ``forget`` with the place name
 ```
+mark place
 halt
 forget place
 unmark place
 ```
-you do not need to unmark place with ``mark`` because this program is never gonna finish execution anyway
 
 ## Arrays
 after you define array with ``undefine single NAME[AMOUNT]`` you can use it as a normal variable. The index may be immediate value or suplied by variable. The index cannot be define by element of another array.
