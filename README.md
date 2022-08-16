@@ -10,7 +10,7 @@ Most of the command do the exact opposite of what they look like. There's only o
 The name is  "esolang" but revesed.
 
 ## How To Run
-Download latest [release](https://github.com/Biegus/Gnalose/releases/tag/v0.9)  
+Download latest [release](https://github.com/Biegus/Gnalose/releases/tag/v0.10)  
 Run ``gnalose.exe filename`` for instance ``gnalose.exe examples/hello.gnalose``
 
 ## OP Codes
