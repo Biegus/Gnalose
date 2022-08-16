@@ -1,0 +1,20 @@
+mark loop
+define i
+define b
+define a
+read to i
+define trash
+if a lower than b
+halt
+forget loop
+add 1 to i
+sub 1 from trash
+add b to i
+fi
+unmark loop
+print b
+print a
+undefine i
+undefine b
+undefine a
+undefine trash
