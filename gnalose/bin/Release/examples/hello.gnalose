@@ -1,3 +1,5 @@
+define a
+define b
 read as number to a
 sub 111 from b
 undefine a

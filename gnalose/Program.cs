@@ -9,27 +9,43 @@ namespace Gnalose
     {
         public static void Main(string[] args)
         {
-      
-            string code = string.Empty;
-      
-            if(args.Length>0)
-                code= File.ReadAllText(args[0]);
+            string fileName;
+            if (args.Length > 0)
+                fileName = args[0];
             else
             {
                 Console.WriteLine("No file supplied, enter file name");
-                code = File.ReadAllText(Console.ReadLine());
+                fileName=Console.ReadLine();
             }
-      
-            Interpreter interpreter = new Interpreter(Tokenizer.Tokenize(code));
+            if (!File.Exists(fileName))
+            {
+                Console.WriteLine("File doesn't exist");
+                return;
+            }
 
+            string code;
             try
             {
-                interpreter.RunAll(Console.WriteLine, () => int.Parse(Console.ReadLine()));
+                 code = File.ReadAllText(fileName);
             }
             catch (Exception exc)
             {
-
-                Console.WriteLine($"Error: {exc.Message}");
+                Console.WriteLine($"Error while opening file {exc.Message}");
+                return;
+            }
+            try
+            {
+                Interpreter interpreter = new(Tokenizer.Tokenize(code));
+                interpreter.RunAll(Console.WriteLine, () => int.Parse(Console.ReadLine()));
+            }
+            catch (GnaloseException exc)
+            {
+                Console.WriteLine("-----");
+                Console.WriteLine($"{exc.Message}");
+            }
+            catch (Exception exc)
+            {
+                Console.WriteLine($"Inner fatal error:{exc}");
             }
            
         }

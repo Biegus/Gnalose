@@ -1,4 +1,4 @@
-﻿this is not needed  we won't get here if we unmarked loop_start /mark loop_start
+﻿mark loop_start
 define c
 define a
 read to c 

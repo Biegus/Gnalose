@@ -8,7 +8,6 @@ namespace Gnalose
     {
         public struct OutInfo
         {
-          
             public string Out { get; }
 
             public OutInfo( string @out)
@@ -25,16 +24,15 @@ namespace Gnalose
             }
         }
 
-        private PreProcessed processed;
+        private TokenCollection tokenCollection;
         private int line =-1;
         private Dictionary<string, int> variables = new();
         private Dictionary<string, int[]> arrays = new();
         Dictionary<string, int> marks = new();
         private string remembered;
-        
-        public Interpreter(PreProcessed processed)
+        public Interpreter(TokenCollection tokenCollection)
         {
-            this.processed = processed;
+            this.tokenCollection = tokenCollection;
         }
 
 
@@ -49,101 +47,156 @@ namespace Gnalose
 
         public void RunAll(Action<string> outFunc, Func<int> inFunc)
         {
-            while (line+1 < processed.Tokens.Count)
+            while (line+1 < tokenCollection.Tokens.Count)
             {
                 OutInfo outInfo=  RunNextLine(inFunc);
                 if (outInfo.Out!=null)
                     outFunc(outInfo.Out);
             }
         }
-       
+
         public OutInfo RunNextLine(Func<int> inFunc)
         {
             line++;
 
-            void ExecuteMath(Token token,Func<int, int,int> operation)
+            void ExecuteMath(Token token, Func<int, int, int> operation)
             {
                 int a = GetLiteralOrRef(token.A);
                 Reference b = token.B.Reference;
                 foreach (var key in variables.Keys.ToArray())
                 {
-                    if (key == b.Name && b.Index==null) continue;
+                    if (key == b.Name && b.Index == null) continue;
                     if (token.A.Reference.Name != null && token.A.Reference.Name == key &&
                         token.A.Reference.Index == null) continue;
                     variables[key] = operation(variables[key], a);
                 }
+
                 foreach (var key in arrays.Keys)
                 {
-                    for(int innerKey=0;innerKey<arrays[key].Length;innerKey++)
+                    for (int innerKey = 0; innerKey < arrays[key].Length; innerKey++)
                     {
-                        if (b.Index!=null&&innerKey==GetIndexValue(b.Index.Value)&& key==b.Name) continue;
-                        if (token.A.Reference.Name!=null && token.A.Reference.Index!=null&&innerKey==GetIndexValue(token.A.Reference.Index.Value)&& key==token.A.Reference.Name) continue;
+                        if (b.Index != null && innerKey == GetIndexValue(b.Index.Value) && key == b.Name) continue;
+                        if (token.A.Reference.Name != null && token.A.Reference.Index != null &&
+                            innerKey == GetIndexValue(token.A.Reference.Index.Value) &&
+                            key == token.A.Reference.Name) continue;
                         arrays[key][innerKey] = operation(arrays[key][innerKey], a);
                     }
                 }
             }
-            int indx = line;
-            var token = processed.Tokens[indx];
 
+            int indx = line;
+            var token = tokenCollection.Tokens[indx];
+
+
+
+
+            void ThrowIfOutOfBounds(string arrayName, int index)
+            {
+                if (index >= arrays[arrayName].Length || index<0)
+                    ThrowInterpreterException($"Array out of bounds. You tried to access index {index}," +
+                                              $" while the array length is {arrays[arrayName]}");
+            }
+            
+            void ThrowInterpreterException(string message)
+            {
+                throw new GnaloseInterpreterException(message, token.OriginalLineNumber,
+                    tokenCollection.OriginalLineCount - token.OriginalLineNumber + 1, token.OriginalLine);
+            }
+
+            void ThrowVariableNotDefined(string variable)
+            {
+                ThrowInterpreterException(
+                    $"Variable {variable} is not defined, but the code tried to use it");
+            }
+            void ThrowIfSingleVariableNotDefined(string name)
+            {
+                if (!variables.ContainsKey(name))
+                    ThrowVariableNotDefined(name);
+            }
+
+            void ThrowIfArrayNotDefined(string name)
+            {
+                if (!arrays.ContainsKey(name))
+                    ThrowVariableNotDefined(name);
+            }
+           
+            
             int GetValue(UnionRef union)
             {
                 if (!union.RefMode)
                     return union.Literal;
                 else if (union.Reference.Index == null)
+                {
+                    ThrowIfSingleVariableNotDefined(union.Reference.Name);
                     return variables[union.Reference.Name];
-                else return arrays[union.Reference.Name][GetIndexValue( union.Reference.Index.Value)];
+                }
+                else
+                {
+                    ThrowIfArrayNotDefined(union.Reference.Name);
+                    int index = GetIndexValue(union.Reference.Index.Value);
+                    ThrowIfOutOfBounds(union.Reference.Name, index);
+                    return arrays[union.Reference.Name][index];
+                }
             }
 
+            void SetValue(UnionRef union, int value)
+            {
+                if (!union.RefMode)
+                    ThrowInterpreterException("Literal cannot be changed");
+                else if (union.Reference.Index == null)
+                {
+                    ThrowIfSingleVariableNotDefined(union.Reference.Name);
+                    variables[union.Reference.Name] = value;
+                }
+                else
+                {
+                    ThrowIfArrayNotDefined(union.Reference.Name);
+                    int index = GetIndexValue(union.Reference.Index.Value);
+                    ThrowIfOutOfBounds(union.Reference.Name, index);
+                    arrays[union.Reference.Name][GetIndexValue(union.Reference.Index.Value)] = value;
+                }
+            }
             int GetIndexValue(RefIndex rf)
             {
                 if (!rf.RefMode)
                     return rf.Literal;
-                else 
-                    return variables[rf.Ref];
-            }
-            void SetValue(UnionRef union, int value)
-            {
-                if (!union.RefMode)
-                    throw new InvalidOperationException("Literal cannot be changed");
-                else if (union.Reference.Index == null)
-                    variables[union.Reference.Name] = value;
-                else  arrays[union.Reference.Name][GetIndexValue( union.Reference.Index.Value)] = value;
-            }
-
-            void IfJump(Func<int,int,bool> cond)
-            {
-                if (!cond(GetLiteralOrRef(token.A),GetLiteralOrRef(token.B)))
+                else
                 {
-                    line = processed.Paths.Dict[line] - 1;
+                    return GetValue(UnionRef.FromReference(rf.Ref));
                 }
             }
+            void IfJump(Func<int, int, bool> cond)
+            {
+                if (!cond(GetLiteralOrRef(token.A), GetLiteralOrRef(token.B)))
+                {
+                    line = tokenCollection.Paths.Dict[line] - 1;
+                }
+            }
+
+            OutInfo outInfo = OutInfo.None;
             switch (token.OpCode)
             {
                 case OpCode.OP_DEF:
                     variables[token.A.Reference.Name] = 0;
-                    return OutInfo.None;
+                    break;
                 case OpCode.OP_DEF_A:
                     arrays[token.A.Reference.Name] = new int[token.A.Reference.Index.Value.Literal];
                     break;
                 case OpCode.OP_PRINT:
-                    return OutInfo.MakeOut(GetValue(token.A).ToString());
+                    outInfo = OutInfo.MakeOut(GetValue(token.A).ToString());
+                    break;
                 case OpCode.OP_PRINT_ASCI:
-                    return OutInfo.MakeOut(((char) GetValue(token.A)).ToString());
+                    outInfo = OutInfo.MakeOut(((char) GetValue(token.A)).ToString());
+                    break;
                 case OpCode.OP_ADD:
-                    ExecuteMath(token,(a, b) => a + b);
+                    ExecuteMath(token, (a, b) => a + b);
                     return OutInfo.None;
                 case OpCode.OP_SUB:
-                    ExecuteMath(token,(a, b) => a - b);
-                    return OutInfo.None;
-                case OpCode.OP_MULT:
-                    ExecuteMath(token,(a, b) => a * b);
-                    return OutInfo.None;
-                case OpCode.OP_DIV:
-                    ExecuteMath(token,(a, b) => a / b);
+                    ExecuteMath(token, (a, b) => a - b);
                     return OutInfo.None;
                 case OpCode.OP_READ:
                     int inValue = inFunc();
-                    SetValue(token.A,inValue);
+                    SetValue(token.A, inValue);
                     break;
                 case OpCode.OP_IF_E:
                     IfJump((a, b) => a == b);
@@ -182,13 +235,15 @@ namespace Gnalose
                     marks.Remove(token.A.Reference.Name);
                     break;
             }
-            if (line == processed.Tokens.Count - 1)
+
+            if (line == tokenCollection.Tokens.Count - 1)
             {
-                if (variables.Count > 0 || arrays.Count>0 || marks.Count>0)
-                    throw new InvalidOperationException("Some variables or marks are still alive");
+                if (variables.Count > 0 || arrays.Count > 0 || marks.Count > 0)
+                    ThrowInterpreterException("This is last one line and some variables or marks are still alive.");
             }
-            return OutInfo.None;
-            
+
+            return outInfo;
         }
     }
+    
 }
