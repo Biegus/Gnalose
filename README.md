@@ -20,9 +20,7 @@ Run ``gnalose.exe filename`` for instance ``gnalose.exe examples/hello.gnalose``
 ``print a`` -> reads from input to a  
 ``read to a`` ->prints a to output    
 ``add a to b`` -> subtracts a from every variable but not from b and and from a (a can be immediate value)    
- ``sub a from b``-> adds a to every variable but not to b and and to a (a can be immediate value)  
-  ``div a by b``-> mults every variable by a but not b and and not a (a can be immediate value)  
-``mult a times b`` divs every variable by a but not b and not a( a can be immediate value)  
+``sub a from b``-> adds a to every variable but not to b and and to a (a can be immediate value)  
 ``fi`` ->defines beginning of if (look at if section)  
 ``unmark loop`` makes loop label, every label has to unmarked with ``mark``  
 ``forget`` pins label to use with ``halt``   
