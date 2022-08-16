@@ -1,9 +1,11 @@
 mark loop
+define question
 define i
 define b
 define a
-read to i
 define trash
+if 63 equal to question
+read to i
 if a lower than b
 halt
 forget loop
@@ -12,9 +14,16 @@ sub 1 from trash
 add b to i
 fi
 unmark loop
+fi
+if b not equal to 0
+read as number to question
+add 63 to question
+sub 63 from trash
+fi
 print b
 print a
 undefine i
 undefine b
 undefine a
 undefine trash
+undefine question
