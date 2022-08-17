@@ -30,6 +30,7 @@ namespace Gnalose
         private Dictionary<string, int[]> arrays = new();
         Dictionary<string, int> marks = new();
         private string remembered;
+        private int globalyAdded = 0;
         public Interpreter(TokenCollection tokenCollection)
         {
             this.tokenCollection = tokenCollection;
@@ -37,13 +38,7 @@ namespace Gnalose
 
 
 
-        private int GetLiteralOrRef(UnionRef @ref)
-        {
-            if (@ref.RefMode)
-                return variables[@ref.Reference.Name];
-            else
-                return @ref.Literal;
-        }
+        
 
         public void RunAll(Action<string> outFunc, Func<int> inFunc)
         {
@@ -58,38 +53,18 @@ namespace Gnalose
         public OutInfo RunNextLine(Func<int> inFunc)
         {
             line++;
-
-            void ExecuteMath(Token token, Func<int, int, int> operation)
-            {
-                int a = GetLiteralOrRef(token.A);
-                Reference b = token.B.Reference;
-                foreach (var key in variables.Keys.ToArray())
-                {
-                    if (key == b.Name && b.Index == null) continue;
-                    if (token.A.Reference.Name != null && token.A.Reference.Name == key &&
-                        token.A.Reference.Index == null) continue;
-                    variables[key] = operation(variables[key], a);
-                }
-
-                foreach (var key in arrays.Keys)
-                {
-                    for (int innerKey = 0; innerKey < arrays[key].Length; innerKey++)
-                    {
-                        if (b.Index != null && innerKey == GetIndexValue(b.Index.Value) && key == b.Name) continue;
-                        if (token.A.Reference.Name != null && token.A.Reference.Index != null &&
-                            innerKey == GetIndexValue(token.A.Reference.Index.Value) &&
-                            key == token.A.Reference.Name) continue;
-                        arrays[key][innerKey] = operation(arrays[key][innerKey], a);
-                    }
-                }
-            }
-
             int indx = line;
             var token = tokenCollection.Tokens[indx];
-
-
-
-
+            
+            void ExecuteMath(int mult)
+            {
+                int addValue = GetValue(token.A);
+                addValue *= mult;
+                globalyAdded += addValue;
+                SetValue(token.B,GetValue(token.B)-addValue);
+                if (token.A.RefMode && !token.A.Equals(token.B) )
+                    SetValue(token.A, GetValue(token.A)-addValue);
+            }
             void ThrowIfOutOfBounds(string arrayName, int index)
             {
                 if (index >= arrays[arrayName].Length || index<0)
@@ -128,17 +103,16 @@ namespace Gnalose
                 else if (union.Reference.Index == null)
                 {
                     ThrowIfSingleVariableNotDefined(union.Reference.Name);
-                    return variables[union.Reference.Name];
+                    return variables[union.Reference.Name] + globalyAdded;
                 }
                 else
                 {
                     ThrowIfArrayNotDefined(union.Reference.Name);
                     int index = GetIndexValue(union.Reference.Index.Value);
                     ThrowIfOutOfBounds(union.Reference.Name, index);
-                    return arrays[union.Reference.Name][index];
+                    return arrays[union.Reference.Name][index] + globalyAdded;
                 }
             }
-
             void SetValue(UnionRef union, int value)
             {
                 if (!union.RefMode)
@@ -146,14 +120,14 @@ namespace Gnalose
                 else if (union.Reference.Index == null)
                 {
                     ThrowIfSingleVariableNotDefined(union.Reference.Name);
-                    variables[union.Reference.Name] = value;
+                    variables[union.Reference.Name] = value - globalyAdded;
                 }
                 else
                 {
                     ThrowIfArrayNotDefined(union.Reference.Name);
                     int index = GetIndexValue(union.Reference.Index.Value);
                     ThrowIfOutOfBounds(union.Reference.Name, index);
-                    arrays[union.Reference.Name][GetIndexValue(union.Reference.Index.Value)] = value;
+                    arrays[union.Reference.Name][GetIndexValue(union.Reference.Index.Value)] = value - globalyAdded;
                 }
             }
             int GetIndexValue(RefIndex rf)
@@ -167,7 +141,7 @@ namespace Gnalose
             }
             void IfJump(Func<int, int, bool> cond)
             {
-                if (!cond(GetLiteralOrRef(token.A), GetLiteralOrRef(token.B)))
+                if (!cond(GetValue(token.A), GetValue(token.B)))
                 {
                     line = tokenCollection.Paths.Dict[line] - 1;
                 }
@@ -177,10 +151,11 @@ namespace Gnalose
             switch (token.OpCode)
             {
                 case OpCode.OP_DEF:
-                    variables[token.A.Reference.Name] = 0;
+                    variables[token.A.Reference.Name] = 0 - globalyAdded;
                     break;
                 case OpCode.OP_DEF_A:
-                    arrays[token.A.Reference.Name] = new int[token.A.Reference.Index.Value.Literal];
+                    arrays[token.A.Reference.Name] = Enumerable.Range(0,token.A.Reference.Index.Value.Literal)
+                        .Select(item => -globalyAdded).ToArray();
                     break;
                 case OpCode.OP_PRINT:
                     outInfo = OutInfo.MakeOut(GetValue(token.A).ToString());
@@ -189,10 +164,10 @@ namespace Gnalose
                     outInfo = OutInfo.MakeOut(((char) GetValue(token.A)).ToString());
                     break;
                 case OpCode.OP_ADD:
-                    ExecuteMath(token, (a, b) => a + b);
+                    ExecuteMath(1);
                     return OutInfo.None;
                 case OpCode.OP_SUB:
-                    ExecuteMath(token, (a, b) => a - b);
+                    ExecuteMath(-1);
                     return OutInfo.None;
                 case OpCode.OP_READ:
                     int inValue = inFunc();
