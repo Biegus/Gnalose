@@ -1,0 +1,7 @@
+C:\Users\micha\Files\Projects\gnalose\gnalose\bin\Release\gnalose.exe
+C:\Users\micha\Files\Projects\gnalose\gnalose\bin\Release\gnalose.pdb
+C:\Users\micha\Files\Projects\gnalose\gnalose\obj\Release\gnalose.csproj.AssemblyReference.cache
+C:\Users\micha\Files\Projects\gnalose\gnalose\obj\Release\gnalose.csproj.SuggestedBindingRedirects.cache
+C:\Users\micha\Files\Projects\gnalose\gnalose\obj\Release\gnalose.csproj.CoreCompileInputs.cache
+C:\Users\micha\Files\Projects\gnalose\gnalose\obj\Release\gnalose.exe
+C:\Users\micha\Files\Projects\gnalose\gnalose\obj\Release\gnalose.pdb
