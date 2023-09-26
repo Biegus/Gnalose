@@ -43,7 +43,7 @@ Note: the gnalose_compiler may yield c code that could be trivialy optmized, tha
 ## How to use the Interpeter (windows)
 Download latest [release](https://github.com/Biegus/Gnalose/releases)  
 ```
-gnalose.exe file_name
+gnalose_intepreter.exe file_name
 ```
 
 Note: Interpreter was written in hurry and contains minor bugs, it's recommend to use compiler instead
