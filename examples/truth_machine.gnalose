@@ -1,0 +1,13 @@
+mark loop_start
+define c
+define a
+read to c 
+undefine c
+if a not equal to 1
+halt
+read to a
+forget loop_start
+unmark loop_start
+fi
+print a
+undefine a

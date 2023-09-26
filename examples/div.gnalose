@@ -5,15 +5,15 @@ define b
 define a
 define trash
 if 63 equal to question
-read to i
-if a lower than b
-halt
-forget loop
-add 1 to i
-sub 1 from trash
-add b to i
-fi
-unmark loop
+	read to i
+	if a lower than b
+		halt
+		forget loop
+		add 1 to i
+		sub 1 from trash
+		add b to i
+	fi
+	unmark loop
 fi
 if b not equal to 0
 read as number to question

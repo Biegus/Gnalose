@@ -10,5 +10,4 @@ forget loop_start
 unmark loop_start
 fi
 print a
-sub 1 from a
 undefine a

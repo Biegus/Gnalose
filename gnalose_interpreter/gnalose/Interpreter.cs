@@ -10,9 +10,9 @@ namespace Gnalose
         {
             public string Out { get; }
 
-            public OutInfo( string @out)
+            public OutInfo(string @out)
             {
-              
+
                 Out = @out;
             }
 
@@ -20,12 +20,12 @@ namespace Gnalose
 
             public static OutInfo MakeOut(string val)
             {
-                return new OutInfo( val);
+                return new OutInfo(val);
             }
         }
 
         private TokenCollection tokenCollection;
-        private int line =-1;
+        private int line = -1;
         private Dictionary<string, int> variables = new();
         private Dictionary<string, int[]> arrays = new();
         Dictionary<string, int> marks = new();
@@ -36,14 +36,12 @@ namespace Gnalose
             this.tokenCollection = tokenCollection;
         }
 
-        
-
         public void RunAll(Action<string> outFunc, Func<int> inFunc)
         {
-            while (line+1 < tokenCollection.Tokens.Count)
+            while (line + 1 < tokenCollection.Tokens.Count)
             {
-                OutInfo outInfo=  RunNextLine(inFunc);
-                if (outInfo.Out!=null)
+                OutInfo outInfo = RunNextLine(inFunc);
+                if (outInfo.Out != null)
                     outFunc(outInfo.Out);
             }
         }
@@ -53,23 +51,23 @@ namespace Gnalose
             line++;
             int indx = line;
             var token = tokenCollection.Tokens[indx];
-            
+
             void ExecuteMath(int mult)
             {
                 int addValue = GetValue(token.A);
                 addValue *= mult;
                 globalyAdded += addValue;
-                SetValue(token.B,GetValue(token.B)-addValue);
-                if (token.A.RefMode && !token.A.Equals(token.B) )
-                    SetValue(token.A, GetValue(token.A)-addValue);
+                SetValue(token.B, GetValue(token.B) - addValue);
+                if (token.A.RefMode && !token.A.Equals(token.B))
+                    SetValue(token.A, GetValue(token.A) - addValue);
             }
             void ThrowIfOutOfBounds(string arrayName, int index)
             {
-                if (index >= arrays[arrayName].Length || index<0)
+                if (index >= arrays[arrayName].Length || index < 0)
                     ThrowInterpreterException($"Array out of bounds. You tried to access index {index}," +
                                               $" while the array length is {arrays[arrayName]}");
             }
-            
+
             void ThrowInterpreterException(string message)
             {
                 throw new GnaloseInterpreterException(message, token.OriginalLineNumber,
@@ -92,8 +90,8 @@ namespace Gnalose
                 if (!arrays.ContainsKey(name))
                     ThrowVariableNotDefined(name);
             }
-           
-            
+
+
             int GetValue(UnionRef union)
             {
                 if (!union.RefMode)
@@ -152,14 +150,14 @@ namespace Gnalose
                     variables[token.A.Reference.Name] = 0 - globalyAdded;
                     break;
                 case OpCode.OP_DEF_A:
-                    arrays[token.A.Reference.Name] = Enumerable.Range(0,token.A.Reference.Index.Value.Literal)
+                    arrays[token.A.Reference.Name] = Enumerable.Range(0, token.A.Reference.Index.Value.Literal)
                         .Select(item => -globalyAdded).ToArray();
                     break;
                 case OpCode.OP_PRINT:
                     outInfo = OutInfo.MakeOut(GetValue(token.A).ToString());
                     break;
                 case OpCode.OP_PRINT_ASCI:
-                    outInfo = OutInfo.MakeOut(((char) GetValue(token.A)).ToString());
+                    outInfo = OutInfo.MakeOut(((char)GetValue(token.A)).ToString());
                     break;
                 case OpCode.OP_ADD:
                     ExecuteMath(1);
@@ -218,5 +216,5 @@ namespace Gnalose
             return outInfo;
         }
     }
-    
+
 }

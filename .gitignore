@@ -1,0 +1,9 @@
+/gnalose_compiler/target
+/gnalose_compiler/Cargo.lock
+/gnalose_interpreter/gnalose/bin
+/gnalose_interpreter/gnalose/obj
+/gnalose_interpreter/.idea
+/gnalose_compiler/run_d.sh
+*.vscode
+*.out
+*.c
