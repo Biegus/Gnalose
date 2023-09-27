@@ -278,7 +278,7 @@ fn compile_internal(ops: &[OpLine], repr: &Representation, line_am: usize) -> Re
             }
         }
         if let Op::If(a, b, cond) = &op_line.op {
-            let constr = IfConstruct::new((*a).clone(), (*b).clone(), (*cond).clone(), i + 1);
+            let constr = IfConstruct::new(*a, *b, *cond, i + 1);
             return Ok(CodeBlock::new(string_builder::collapse(builder), i, Some(constr)));
         }
         i += 1;

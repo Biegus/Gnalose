@@ -82,39 +82,3 @@ where
 }
 
 
-/*
-pub struct SteppingIterator<TN, TC, F>
-where
-    TC: IntoIterator,
-    F: Fn(TC) -> Option<(TC, TN)>,
-{
-    inside: TC,
-    func: F,
-}
-
-impl<TN, TC, F> Iterator for SteppingIterator<TN, TC, F>
-where
-    TC: IntoIterator,
-    F: Fn(TC) -> Option<(TC, TN)>,
-{
-    type Item = TN;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        let mut value;
-        take_mut::take(&mut self, |c| {
-            let i;
-             = (self.func)(self.inside);
-            return i;
-        })(self.inside, value) = (self.func)(self.inside)?;
-        return Some(value);
-    }
-}
-
-pub fn make_step_iter<TN, TC, F>(t: TC, f: F) -> SteppingIterator<TN, TC, F>
-where
-    TC: IntoIterator,
-    F: Fn(TC) -> Option<(TC, TN)>,
-{
-    return SteppingIterator { inside: t, func: f };
-}
-**/

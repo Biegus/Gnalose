@@ -22,7 +22,6 @@ pub struct ArrayElement {
     pub index: IValue,
 }
 
-
 #[subenum(VValue, IValue)]
 #[enum_unwrapper::unique_try_froms]
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -44,7 +43,7 @@ impl IValue {
     }
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub enum ConditionType {
     Equal,
     NotEqual,
@@ -54,7 +53,6 @@ pub enum ConditionType {
     GreaterOrEqual,
 }
 
-//TODO: array suppport
 #[derive(Debug, Clone, PartialEq)]
 pub enum Op {
     Define(RValue),
